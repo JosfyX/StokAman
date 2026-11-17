@@ -15,17 +15,25 @@ WORKDIR /app
 
 FROM base AS test
 COPY composer.json composer.lock ./
-RUN composer install --no-interaction --prefer-dist
+
+RUN composer install --no-interaction --prefer-dist --no-scripts
 COPY . .
+
 RUN cp .env.example .env \
+    && php artisan package:discover --ansi \
     && php artisan key:generate \
     && php artisan test
 
+
 FROM base AS production
 COPY composer.json composer.lock ./
-RUN composer install --no-interaction --prefer-dist --no-scripts
+
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts
 COPY . .
-RUN chmod -R 775 storage bootstrap/cache
+
+RUN cp .env.example .env \
+    && php artisan package:discover --ansi \
+    && chmod -R 775 storage bootstrap/cache
 
 EXPOSE 8000
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
