@@ -56,7 +56,7 @@ pipeline {
             steps {
                 // Ambil file .env dari Jenkins Credentials (Secret File)
                withCredentials([file(credentialsId: 'stokaman-env', variable: 'ENV_FILE')]) {
-                    sh 'cp $ENV_FILE .env'
+                    sh 'cat "$ENV_FILE" > .env'
                 }
                 // Hentikan container lama, lalu jalankan yang baru dari image yang sudah di-push
                 sh 'docker compose down'
