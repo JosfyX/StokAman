@@ -23,7 +23,7 @@ RUN cp .env.example .env \
 
 FROM base AS production
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+RUN composer install --no-interaction --prefer-dist --no-scripts
 COPY . .
 RUN chmod -R 775 storage bootstrap/cache
 
