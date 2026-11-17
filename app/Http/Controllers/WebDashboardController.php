@@ -18,7 +18,7 @@ class WebDashboardController extends Controller
         $categories   = Category::all();
         $suppliers    = Supplier::all();
         $products     = Product::with('category')->get();
-        $lowStockList = $products->filter(fn($p) => $p->is_low_stock);
+        $lowStockList = $products->filter(fn($product) => $product->current_stock < $product->min_stock);
 
         // Kartu Stok untuk produk yang dipilih (default produk pertama)
         $selectedProduct = $request->filled('product_id')

@@ -37,6 +37,6 @@ class Product extends Model
 
     public function getIsLowStockAttribute(): bool
     {
-        return $this->current_stock <= $this->min_stock;
+        return $this->current_stock < $this->min_stock;
     }
 }
