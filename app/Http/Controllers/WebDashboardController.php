@@ -162,4 +162,54 @@ class WebDashboardController extends Controller
             return back()->with('error', $e->getMessage());
         }
     }
+
+    // === UPDATE & DELETE PRODUK ===
+    public function updateProduct(Request $request, Product $product)
+    {
+        $data = $request->validate([
+            'category_id' => 'required|exists:categories,id',
+            'sku'         => 'required|string|unique:products,sku,' . $product->id,
+            'name'        => 'required|string|max:255',
+            'min_stock'   => 'required|integer|min:0',
+        ]);
+
+        $product->update($data);
+        return back()->with('success', 'Data produk berhasil diperbarui.');
+    }
+
+    public function destroyProduct(Product $product)
+    {
+        $product->delete();
+        return back()->with('success', 'Produk berhasil dihapus.');
+    }
+
+    public function updateCategory(Request $request, Category $category)
+    {
+        $data = $request->validate(['name' => 'required|string|max:255']);
+        $category->update($data);
+        return back()->with('success', 'Kategori berhasil diperbarui.');
+    }
+
+    public function destroyCategory(Category $category)
+    {
+        $category->delete();
+        return back()->with('success', 'Kategori berhasil dihapus.');
+    }
+
+    public function updateSupplier(Request $request, Supplier $supplier)
+    {
+        $data = $request->validate([
+            'name'    => 'required|string|max:255',
+            'phone'   => 'nullable|string|max:50',
+            'address' => 'nullable|string',
+        ]);
+        $supplier->update($data);
+        return back()->with('success', 'Pemasok berhasil diperbarui.');
+    }
+
+    public function destroySupplier(Supplier $supplier)
+    {
+        $supplier->delete();
+        return back()->with('success', 'Pemasok berhasil dihapus.');
+    }
 }
