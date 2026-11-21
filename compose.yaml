@@ -20,8 +20,7 @@ services:
       start_period: 20s
 
   app:
-    # isien username mu joshs wonogiri
-    image: ${DOCKERHUB_USERNAME}/stokaman:${APP_IMAGE_TAG:-latest}
+    image: zaychxx/stokaman:${APP_IMAGE_TAG:-latest}
     container_name: stokaman-app
     restart: unless-stopped
     ports:
