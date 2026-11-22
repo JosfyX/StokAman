@@ -1,6 +1,7 @@
 FROM php:8.3-cli-alpine AS base
 
-RUN apk add --no-cache \
+RUN apk update && apk upgrade --no-cache && \
+    apk add --no-cache \
     git \
     unzip \
     curl \
