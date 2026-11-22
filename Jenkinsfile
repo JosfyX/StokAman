@@ -3,7 +3,7 @@ pipeline {
     
     environment {
         DOCKERHUB_CREDS = 'dockerhub-credentials'
-        DOCKERHUB_USER  = 'zaychxx' // Ganti dengan username Docker Hub
+        DOCKERHUB_USER  = 'zaychxx' 
         IMAGE_NAME      = "${DOCKERHUB_USER}/stokaman"
         IMAGE_TAG       = "${env.BUILD_NUMBER}"
         APP_PORT        = '8000'
@@ -18,7 +18,6 @@ pipeline {
 
         stage('Test') {
             steps {
-                // Build stage test dari Dockerfile (multi-stage) dan jalankan test di dalamnya
                 sh 'docker build --target test -t ${IMAGE_NAME}:test .'
             }
         }
@@ -29,9 +28,8 @@ pipeline {
             }
         }
 
-        stage('Security Scan (Trivy)') { // Tantangan DevOps K11
+        stage('Security Scan (Trivy)') { 
             steps {
-                // Jalankan Trivy via container, scan image yang baru dibuat
                 sh '''
                     docker run --rm \
                       -v /var/run/docker.sock:/var/run/docker.sock \
@@ -54,22 +52,27 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                // Ambil file .env dari Jenkins Credentials (Secret File)
-               withCredentials([file(credentialsId: 'stokaman-env', variable: 'ENV_FILE')]) {
+                withCredentials([file(credentialsId: 'stokaman-env', variable: 'ENV_FILE')]) {
                     sh 'cat "$ENV_FILE" > .env'
                 }
-                // Hentikan container lama, lalu jalankan yang baru dari image yang sudah di-push
-                sh 'docker compose down'
-                sh 'docker compose pull app'
-                sh 'docker compose up -d'
+                
+                sh 'docker rm -f stokaman-db stokaman-app || true'
+                sh 'docker compose --env-file .env down --remove-orphans'
+                sh 'docker compose --env-file .env pull app'
+                sh 'docker compose --env-file .env up -d'
+                
+                sh 'echo "Menunggu database siap..."'
+                sh 'sleep 20'
+                
+                sh 'docker compose --env-file .env exec -T app php artisan migrate --force'
             }
         }
 
         stage('Smoke Test') {
             steps {
-                // Tunggu aplikasi siap, lalu panggil endpoint /health
+                
                 sh '''
-                    sleep 15
+                    sleep 10
                     curl -fsS http://localhost:${APP_PORT}/health
                 '''
             }
